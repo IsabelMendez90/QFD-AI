@@ -7,3 +7,4 @@ streamlit-chat
 markdown2
 python-docx
 pillow
+openpyxl

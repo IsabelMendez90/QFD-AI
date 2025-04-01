@@ -4,6 +4,7 @@ import pandas as pd
 import json
 import ast
 import io
+import math
 from io import BytesIO
 from datetime import datetime
 
@@ -164,16 +165,15 @@ if st.session_state.resultado_qfd:
                 pesos_redondeados[idx] -= 0.1
         pesos_redondeados = pesos_redondeados.round(2)
 
-    
-    df_visual.loc["Peso relativo (%)"] = ["", ""] + list(pesos_redondeados) + [""] * (num_cols - len(pesos_redondeados))
-    max_blocks = 10
-    barra_unicode = lambda v: '█' * int(round(v / 100 * max_blocks))
-    df_visual.loc["Mini-gráfica"] = ["", ""] + [barra_unicode(v) for v in pesos_redondeados] + [""] * (num_cols - len(pesos_redondeados))
 
     df_visual.loc["Peso relativo (%)"] = ["", "Peso relativo (%)"] + list(pesos_redondeados) + [""] * (num_cols - len(pesos_redondeados))
     max_blocks = 10
-    barra_unicode = lambda v: '█' * int(round(v / 100 * max_blocks))
+    def barra_unicode(v):
+       blocks = max(1, math.ceil(v / 100 * max_blocks)) if v > 0 else 0
+       return '█' * blocks
     df_visual.loc["Gráfica relativa"] = ["", "Gráfica relativa"] + [barra_unicode(v) for v in pesos_redondeados] + [""] * (num_cols - len(pesos_redondeados))
+
+
    
 
     st.markdown("""

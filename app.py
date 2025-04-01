@@ -144,8 +144,8 @@ if st.session_state.resultado_qfd:
     df = pd.DataFrame(data_padded, columns=columnas)
     symbol_map = {"9": "●", 9: "●", "3": "○", 3: "○", "1": "▽", 1: "▽", "0": " ", 0: " ", "": " "}
     df = df.applymap(lambda x: symbol_map.get(x, x))
-    df.insert(0, "Valor absoluto", valor_absoluto)
-    df.insert(0, "Necesidades del cliente (valor ponderado)", [f"{n} (×{i})" for n, i in zip(resultado["necesidades_cliente"], importancias)])
+    df.insert(0, "Importancia del cliente", valor_absoluto)
+    df.insert(0, "Necesidades del cliente", resultado["necesidades_cliente"])
     df.loc["Target"] = ["Target", ""] + resultado["targets"] + [""] * (num_cols - len(resultado["targets"]))
     df.loc["Unidades"] = ["Unidades", ""] + resultado["unidades"] + [""] * (num_cols - len(resultado["unidades"]))
 
@@ -167,4 +167,5 @@ if st.session_state.resultado_qfd:
     nombre_archivo = f"{datetime.now().strftime('%Y%m%d-%H%M')}-matriz_qfd.xlsx"
     st.markdown("### 📥 Descargar Matriz")
     st.download_button("📂 Descargar como Excel", data=buffer, file_name=nombre_archivo, mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+
 

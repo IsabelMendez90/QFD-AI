@@ -25,11 +25,13 @@ Eres un asistente técnico experto en integración de sistemas mecatrónicos par
    - 1: Relación débil
    - 0: Sin relación significativa
 
-3. Generar una lista de **targets** y **unidades** asociadas a cada requerimiento técnico (en el mismo orden en que los presentas). Los targets pueden ser valores puntuales o rangos, según la naturaleza del requerimiento. Si el requerimiento técnico puede implicar múltiples variantes (por ejemplo, sensores con diferentes resoluciones), expresa el target como un rango representativo o menciona varias opciones relevantes.
+3. Asignar un valor de importancia del 1 al 5 a cada necesidad del cliente con base en el contexto del socio formador, la pregunta esencial y el reto específico.
 
-4. Regresa el resultado como un JSON con las siguientes claves:
+4. Generar una lista de **targets** y **unidades** asociadas a cada requerimiento técnico (en el mismo orden en que los presentas). Los targets pueden ser valores puntuales o rangos, según la naturaleza del requerimiento. Si el requerimiento técnico puede implicar múltiples variantes (por ejemplo, sensores con diferentes resoluciones), expresa el target como un rango representativo o menciona varias opciones relevantes.
+
+5. Regresa el resultado como un JSON con las siguientes claves:
    - 'necesidades_cliente': lista de necesidades del cliente,
-   - 'importancia_cliente': lista de valores relativos (de 1 a 10),
+   - 'importancia_cliente': lista de valores del 1 al 5,
    - 'req_tecnicos_b': lista de requerimientos técnicos base,
    - 'req_tecnicos_va': lista de requerimientos técnicos valor agregado,
    - 'matriz_qfd': matriz de relaciones con valores 0, 1, 3, 9,
@@ -130,21 +132,12 @@ if st.session_state.resultado_qfd:
     num_cols = len(columnas)
     data = resultado["matriz_qfd"]
     data_padded = [fila + [""] * (num_cols - len(fila)) if len(fila) < num_cols else fila[:num_cols] for fila in data]
-    importancia_total = []
-    for fila in data_padded:
-        suma = sum([
-            9 if v == 9 or v == "9" else
-            3 if v == 3 or v == "3" else
-            1 if v == 1 or v == "1" else 0
-            for v in fila
-        ])
-        importancia_total.append(suma)
 
     df = pd.DataFrame(data_padded, columns=columnas)
     symbol_map = {"9": "●", 9: "●", "3": "○", 3: "○", "1": "▽", 1: "▽", "0": " ", 0: " ", "": " "}
     df = df.applymap(lambda x: symbol_map.get(x, x))
     df.insert(0, "Necesidades del cliente", resultado["necesidades_cliente"])
-    df.insert(0, "Importancia del cliente", importancia_total)
+    df.insert(0, "Importancia del cliente", resultado["importancia_cliente"])
     df.loc["Target"] = ["Target", ""] + resultado["targets"] + [""] * (num_cols - len(resultado["targets"]))
     df.loc["Unidades"] = ["Unidades", ""] + resultado["unidades"] + [""] * (num_cols - len(resultado["unidades"]))
 
@@ -166,6 +159,7 @@ if st.session_state.resultado_qfd:
     nombre_archivo = f"{datetime.now().strftime('%Y%m%d-%H%M')}-matriz_qfd.xlsx"
     st.markdown("### 📥 Descargar Matriz")
     st.download_button("📂 Descargar como Excel", data=buffer, file_name=nombre_archivo, mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+
 
 
 

@@ -25,7 +25,7 @@ Eres un asistente técnico experto en integración de sistemas mecatrónicos par
    - 1: Relación débil
    - 0: Sin relación significativa
 
-3. Asignar un nivel de importancia absoluta a cada necesidad del cliente, en formato de ranking del 1 al N (donde 1 es la más importante y N la menos importante), basándote en el contexto, la pregunta esencial y el reto.
+3. Asigna un valor de importancia absoluta a cada necesidad del cliente (de 1 a 10), basado exclusivamente en el contexto, pregunta esencial y reto específico. Cada necesidad debe evaluarse de forma independiente, sin ordenarlas ni compararlas entre sí.
 
 4. Generar una lista de **targets** y **unidades** asociadas a cada requerimiento técnico (en el mismo orden en que los presentas). Los targets pueden ser valores puntuales o rangos, según la naturaleza del requerimiento. Si el requerimiento técnico puede implicar múltiples variantes (por ejemplo, sensores con diferentes resoluciones), expresa el target como un rango representativo o menciona varias opciones relevantes.
 
@@ -132,25 +132,10 @@ if st.session_state.resultado_qfd:
     num_cols = len(columnas)
     data = resultado["matriz_qfd"]
     data_padded = [fila + [""] * (num_cols - len(fila)) if len(fila) < num_cols else fila[:num_cols] for fila in data]
-    symbol_map = {"9": "●", 9: "●", "3": "○", 3: "○", "1": "▽", 1: "▽", "0": " ", 0: " ", "": " "}
-
-    puntajes = []
-    for fila in data_padded:
-        puntaje = sum([
-            9 if v in ["9", 9] else
-            3 if v in ["3", 3] else
-            1 if v in ["1", 1] else 0 for v in fila
-        ])
-        puntajes.append(puntaje)
-
-    importancia_ordenada = sorted([(i, p) for i, p in enumerate(puntajes)], key=lambda x: -x[1])
-    ranking_importancia = [0] * len(puntajes)
-    for idx, (original_idx, _) in enumerate(importancia_ordenada):
-        ranking_importancia[original_idx] = idx + 1
-
     df = pd.DataFrame(data_padded, columns=columnas)
+    symbol_map = {"9": "●", 9: "●", "3": "○", 3: "○", "1": "▽", 1: "▽", "0": " ", 0: " ", "": " "}
     df = df.applymap(lambda x: symbol_map.get(x, x))
-    df.insert(0, "Importancia del cliente", ranking_importancia)
+    df.insert(0, "Importancia del cliente", resultado["importancia_cliente"])
     df.insert(1, "Necesidades del cliente", resultado["necesidades_cliente"])
     df.loc["Target"] = ["", "Target"] + resultado["targets"] + [""] * (num_cols - len(resultado["targets"]))
     df.loc["Unidades"] = ["", "Unidades"] + resultado["unidades"] + [""] * (num_cols - len(resultado["unidades"]))
@@ -173,3 +158,4 @@ if st.session_state.resultado_qfd:
     nombre_archivo = f"{datetime.now().strftime('%Y%m%d-%H%M')}-matriz_qfd.xlsx"
     st.markdown("### 📥 Descargar Matriz")
     st.download_button("📂 Descargar como Excel", data=buffer, file_name=nombre_archivo, mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+

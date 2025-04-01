@@ -167,7 +167,7 @@ if st.session_state.resultado_qfd:
 
 
     df_visual.loc["Peso relativo (%)"] = ["", "Peso relativo (%)"] + list(pesos_redondeados) + [""] * (num_cols - len(pesos_redondeados))
-    max_blocks = 10
+    max_blocks = 50
     def barra_unicode(v):
        blocks = max(1, math.ceil(v / 100 * max_blocks)) if v > 0 else 0
        return '█' * blocks

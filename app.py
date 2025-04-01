@@ -148,9 +148,23 @@ if st.session_state.resultado_qfd:
     df_visual.loc["Target"] = ["", "Target"] + resultado["targets"] + [""] * (num_cols - len(resultado["targets"]))
     df_visual.loc["Unidades"] = ["", "Unidades"] + resultado["unidades"] + [""] * (num_cols - len(resultado["unidades"]))
     df_visual.loc["Calificación técnica"] = ["", "Calificación de importancia técnica"] + list(importancia_tecnica) + [""] * (num_cols - len(importancia_tecnica))
-    peso_relativo = (importancia_tecnica / importancia_tecnica.sum()).round(3)
-    df_visual.loc["Peso relativo"] = ["", "Peso relativo"] + list(peso_relativo) + [""] * (num_cols - len(peso_relativo))
 
+    # Cálculo justo del peso relativo en porcentaje
+    pesos_relativos_raw = (importancia_tecnica / importancia_tecnica.sum()) * 100
+    pesos_redondeados = pesos_relativos_raw.round(1)
+    diferencia = 100 - pesos_redondeados.sum()
+    if abs(diferencia) > 0:
+        decimas = int(round(diferencia * 10))
+        indices_ordenados = pesos_redondeados.sort_values(ascending=False).index.tolist()
+        for i in range(abs(decimas)):
+            idx = indices_ordenados[i % len(indices_ordenados)]
+            if diferencia > 0:
+                pesos_redondeados[idx] += 0.1
+            else:
+                pesos_redondeados[idx] -= 0.1
+        pesos_redondeados = pesos_redondeados.round(1)
+
+    df_visual.loc["Peso relativo"] = ["", "Peso relativo (%)"] + [f"{v}%" for v in pesos_redondeados] + [""] * (num_cols - len(pesos_redondeados))
 
     st.markdown("""
     ### 🔍 Leyenda de la matriz:
@@ -168,7 +182,7 @@ if st.session_state.resultado_qfd:
         df_visual.to_excel(writer, index=False, sheet_name='QFD')
     buffer.seek(0)
     nombre_archivo = f"{datetime.now().strftime('%Y%m%d-%H%M')}-matriz_qfd.xlsx"
-    st.markdown("### 📥 Descargar Matriz")
+    st.markdown("### 📅 Descargar Matriz")
     st.download_button("📂 Descargar como Excel", data=buffer, file_name=nombre_archivo, mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
 
 

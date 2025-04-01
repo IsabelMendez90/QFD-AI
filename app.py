@@ -148,6 +148,9 @@ if st.session_state.resultado_qfd:
     df_visual.loc["Target"] = ["", "Target"] + resultado["targets"] + [""] * (num_cols - len(resultado["targets"]))
     df_visual.loc["Unidades"] = ["", "Unidades"] + resultado["unidades"] + [""] * (num_cols - len(resultado["unidades"]))
     df_visual.loc["Calificación técnica"] = ["", "Calificación de importancia técnica"] + list(importancia_tecnica) + [""] * (num_cols - len(importancia_tecnica))
+    peso_relativo = (importancia_tecnica / importancia_tecnica.sum()).round(3)
+    df_visual.loc["Peso relativo"] = ["", "Peso relativo"] + list(peso_relativo) + [""] * (num_cols - len(peso_relativo))
+
 
     st.markdown("""
     ### 🔍 Leyenda de la matriz:

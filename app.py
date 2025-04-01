@@ -164,11 +164,11 @@ if st.session_state.resultado_qfd:
                 pesos_redondeados[idx] -= 0.1
         pesos_redondeados = pesos_redondeados.round(2)
 
-    df_visual.loc["Peso relativo"] = ["", "Peso relativo (%)"] + list(pesos_redondeados) + [""] * (num_cols - len(pesos_redondeados))
-    # Fila adicional: "Gráfica del peso relativo" (representación textual estilo barra)
+    
+    df_visual.loc["Peso relativo (%)"] = ["", ""] + list(pesos_redondeados) + [""] * (num_cols - len(pesos_redondeados))
     max_blocks = 10
     barra_unicode = lambda v: '█' * int(round(v / 100 * max_blocks))
-    df_visual.loc["Gráfica del peso relativo"] = ["", "Gráfica del peso relativo"] + [barra_unicode(v) for v in pesos_redondeados] + [""] * (num_cols - len(pesos_redondeados))
+    df_visual.loc["Mini-gráfica"] = ["", ""] + [barra_unicode(v) for v in pesos_redondeados] + [""] * (num_cols - len(pesos_redondeados))
 
 
     st.markdown("""
@@ -187,7 +187,7 @@ if st.session_state.resultado_qfd:
         df_visual.to_excel(writer, index=False, sheet_name='QFD')
     buffer.seek(0)
     nombre_archivo = f"{datetime.now().strftime('%Y%m%d-%H%M')}-matriz_qfd.xlsx"
-    st.markdown("### 📂 Descargar Matriz")
+    st.markdown("### 📥 Descargar Matriz")
     st.download_button("📂 Descargar como Excel", data=buffer, file_name=nombre_archivo, mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
 
 

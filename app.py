@@ -145,10 +145,9 @@ if st.session_state.resultado_qfd:
     df_numeric.insert(0, "Importancia del cliente", importancias)
 
     importancia_tecnica = df_numeric[columnas].multiply(importancias, axis=0).sum(axis=0)
-    df_visual.loc["Calificación técnica"] = ["", "Calificación de importancia técnica"] + list(importancia_tecnica) + [""] * (len(df_visual.columns) - len(importancia_tecnica) - 2)
-
     df_visual.loc["Target"] = ["", "Target"] + resultado["targets"] + [""] * (num_cols - len(resultado["targets"]))
     df_visual.loc["Unidades"] = ["", "Unidades"] + resultado["unidades"] + [""] * (num_cols - len(resultado["unidades"]))
+    df_visual.loc["Calificación técnica"] = ["", "Calificación de importancia técnica"] + list(importancia_tecnica) + [""] * (num_cols - len(importancia_tecnica))
 
     st.markdown("""
     ### 🔍 Leyenda de la matriz:
@@ -168,6 +167,7 @@ if st.session_state.resultado_qfd:
     nombre_archivo = f"{datetime.now().strftime('%Y%m%d-%H%M')}-matriz_qfd.xlsx"
     st.markdown("### 📥 Descargar Matriz")
     st.download_button("📂 Descargar como Excel", data=buffer, file_name=nombre_archivo, mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+
 
 
 

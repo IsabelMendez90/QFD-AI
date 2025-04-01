@@ -131,15 +131,24 @@ if st.session_state.resultado_qfd:
     columnas = resultado["req_tecnicos_b"] + resultado["req_tecnicos_va"]
     num_cols = len(columnas)
     data = resultado["matriz_qfd"]
+    importancias = resultado["importancia_cliente"]
     data_padded = [fila + [""] * (num_cols - len(fila)) if len(fila) < num_cols else fila[:num_cols] for fila in data]
 
     df = pd.DataFrame(data_padded, columns=columnas)
     symbol_map = {"9": "●", 9: "●", "3": "○", 3: "○", "1": "▽", 1: "▽", "0": " ", 0: " ", "": " "}
-    df = df.applymap(lambda x: symbol_map.get(x, x))
-    df.insert(0, "Necesidades del cliente", resultado["necesidades_cliente"])
-    df.insert(0, "Importancia del cliente", resultado["importancia_cliente"])
-    df.loc["Target"] = ["Target", ""] + resultado["targets"] + [""] * (num_cols - len(resultado["targets"]))
-    df.loc["Unidades"] = ["Unidades", ""] + resultado["unidades"] + [""] * (num_cols - len(resultado["unidades"]))
+    df_visual = df.applymap(lambda x: symbol_map.get(x, x))
+    df_visual.insert(0, "Necesidades del cliente", resultado["necesidades_cliente"])
+    df_visual.insert(0, "Importancia del cliente", importancias)
+
+    df_numeric = pd.DataFrame(data_padded, columns=columnas).apply(pd.to_numeric, errors='coerce').fillna(0)
+    df_numeric.insert(0, "Necesidades del cliente", resultado["necesidades_cliente"])
+    df_numeric.insert(0, "Importancia del cliente", importancias)
+
+    importancia_tecnica = df_numeric[columnas].multiply(importancias, axis=0).sum(axis=0)
+    df_visual.loc["Calificación técnica"] = ["", "Calificación de importancia técnica"] + list(importancia_tecnica) + [""] * (len(df_visual.columns) - len(importancia_tecnica) - 2)
+
+    df_visual.loc["Target"] = ["", "Target"] + resultado["targets"] + [""] * (num_cols - len(resultado["targets"]))
+    df_visual.loc["Unidades"] = ["", "Unidades"] + resultado["unidades"] + [""] * (num_cols - len(resultado["unidades"]))
 
     st.markdown("""
     ### 🔍 Leyenda de la matriz:
@@ -150,15 +159,16 @@ if st.session_state.resultado_qfd:
     """)
 
     st.markdown("### ✅ Matriz QFD Generada")
-    st.dataframe(df, use_container_width=True)
+    st.dataframe(df_visual, use_container_width=True)
 
     buffer = io.BytesIO()
     with pd.ExcelWriter(buffer, engine='openpyxl') as writer:
-        df.to_excel(writer, index=False, sheet_name='QFD')
+        df_visual.to_excel(writer, index=False, sheet_name='QFD')
     buffer.seek(0)
     nombre_archivo = f"{datetime.now().strftime('%Y%m%d-%H%M')}-matriz_qfd.xlsx"
     st.markdown("### 📥 Descargar Matriz")
     st.download_button("📂 Descargar como Excel", data=buffer, file_name=nombre_archivo, mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+
 
 
 

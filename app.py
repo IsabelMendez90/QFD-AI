@@ -163,7 +163,7 @@ if st.session_state.resultado_qfd:
                 pesos_redondeados[idx] += 0.1
             else:
                 pesos_redondeados[idx] -= 0.1
-        pesos_redondeados = pesos_redondeados.round(0)
+        pesos_redondeados = pesos_redondeados.round(0).astype(int)
 
 
     df_visual.loc["Peso relativo (%)"] = ["", "Peso relativo (%)"] + list(pesos_redondeados) + [""] * (num_cols - len(pesos_redondeados))

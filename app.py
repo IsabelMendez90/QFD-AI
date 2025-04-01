@@ -129,22 +129,21 @@ if st.session_state.resultado_qfd:
     columnas = resultado["req_tecnicos_b"] + resultado["req_tecnicos_va"]
     num_cols = len(columnas)
     data = resultado["matriz_qfd"]
-    importancias = resultado["importancia_cliente"]
     data_padded = [fila + [""] * (num_cols - len(fila)) if len(fila) < num_cols else fila[:num_cols] for fila in data]
-    valor_absoluto = []
-    for i, fila in enumerate(data_padded):
+    importancia_total = []
+    for fila in data_padded:
         suma = sum([
             9 if v == 9 or v == "9" else
             3 if v == 3 or v == "3" else
             1 if v == 1 or v == "1" else 0
             for v in fila
         ])
-        valor_absoluto.append(suma * importancias[i])
+        importancia_total.append(suma)
 
     df = pd.DataFrame(data_padded, columns=columnas)
     symbol_map = {"9": "●", 9: "●", "3": "○", 3: "○", "1": "▽", 1: "▽", "0": " ", 0: " ", "": " "}
     df = df.applymap(lambda x: symbol_map.get(x, x))
-    df.insert(0, "Importancia del cliente", valor_absoluto)
+    df.insert(0, "Importancia del cliente", importancia_total)
     df.insert(0, "Necesidades del cliente", resultado["necesidades_cliente"])
     df.loc["Target"] = ["Target", ""] + resultado["targets"] + [""] * (num_cols - len(resultado["targets"]))
     df.loc["Unidades"] = ["Unidades", ""] + resultado["unidades"] + [""] * (num_cols - len(resultado["unidades"]))
@@ -167,5 +166,6 @@ if st.session_state.resultado_qfd:
     nombre_archivo = f"{datetime.now().strftime('%Y%m%d-%H%M')}-matriz_qfd.xlsx"
     st.markdown("### 📥 Descargar Matriz")
     st.download_button("📂 Descargar como Excel", data=buffer, file_name=nombre_archivo, mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+
 
 

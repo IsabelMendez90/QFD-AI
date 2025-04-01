@@ -143,8 +143,8 @@ if st.session_state.resultado_qfd:
     df = pd.DataFrame(data_padded, columns=columnas)
     symbol_map = {"9": "●", 9: "●", "3": "○", 3: "○", "1": "▽", 1: "▽", "0": " ", 0: " ", "": " "}
     df = df.applymap(lambda x: symbol_map.get(x, x))
-    df.insert(0, "Importancia del cliente", importancia_total)
     df.insert(0, "Necesidades del cliente", resultado["necesidades_cliente"])
+    df.insert(0, "Importancia del cliente", importancia_total)
     df.loc["Target"] = ["Target", ""] + resultado["targets"] + [""] * (num_cols - len(resultado["targets"]))
     df.loc["Unidades"] = ["Unidades", ""] + resultado["unidades"] + [""] * (num_cols - len(resultado["unidades"]))
 

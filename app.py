@@ -170,6 +170,11 @@ if st.session_state.resultado_qfd:
     barra_unicode = lambda v: '█' * int(round(v / 100 * max_blocks))
     df_visual.loc["Mini-gráfica"] = ["", ""] + [barra_unicode(v) for v in pesos_redondeados] + [""] * (num_cols - len(pesos_redondeados))
 
+    df_visual.loc["Peso relativo (%)"] = ["", "Peso relativo (%)"] + list(pesos_redondeados) + [""] * (num_cols - len(pesos_redondeados))
+    max_blocks = 10
+    barra_unicode = lambda v: '█' * int(round(v / 100 * max_blocks))
+    df_visual.loc["Gráfica relativa"] = ["", "Gráfica relativa"] + [barra_unicode(v) for v in pesos_redondeados] + [""] * (num_cols - len(pesos_redondeados))
+   
 
     st.markdown("""
     ### 🔍 Leyenda de la matriz:

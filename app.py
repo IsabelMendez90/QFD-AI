@@ -90,14 +90,9 @@ Necesidades del cliente:
 # UI
 st.set_page_config(page_title="Challenge Mentor AI - Matriz QFD", layout="wide")
 st.title("🤖 Challenge Mentor AI - Matriz QFD")
-st.markdown(
-    "Creadores: Dra. J. Isabel Méndez Garduño & M.Sc. Miguel de J. Ramírez C., CMfgT "
-)
+st.markdown("Creadores: Dra. J. Isabel Méndez Garduño & M.Sc. Miguel de J. Ramírez C., CMfgT & M.Sc. David Barrientos ")
 st.subheader("Guía interactiva que te sugiere requerimientos técnicos para tu QFD.")
-st.markdown(
-    "Este asistente te ayudará paso a paso a obtener tu listado de requerimientos para la matriz QFD con base en el contexto del socio formador, pregunta esencial, reto específico a resolver y lista de necesidades del cliente. "
-    "Recibirás una **MATRIZ QFD** que te servirá de base para analizarla y proponer tu propia matriz QFD."
-)
+st.markdown("Este asistente te ayudará paso a paso a obtener tu listado de requerimientos para la matriz QFD con base en el contexto del socio formador, pregunta esencial, reto específico a resolver y lista de necesidades del cliente. Recibirás una **MATRIZ QFD** que te servirá de base para analizarla y proponer tu propia matriz QFD.")
 
 if "resultado_qfd" not in st.session_state:
     st.session_state.resultado_qfd = None
@@ -129,17 +124,6 @@ if submitted:
                 st.code(str(e))
                 st.stop()
 
-        nuevas_importancias = revalorar_importancia(contexto, pregunta_esencial, reto_especifico, resultado["necesidades_cliente"])
-        try:
-            inicio_lista = nuevas_importancias.find('[')
-            fin_lista = nuevas_importancias.rfind(']') + 1
-            lista_limpia = nuevas_importancias[inicio_lista:fin_lista]
-            nuevas_importancias = json.loads(lista_limpia)
-            resultado["importancia_cliente"] = nuevas_importancias
-        except Exception as e:
-            st.warning("No se pudo actualizar la importancia revalorada.")
-            st.code(str(e))
-
         st.session_state.resultado_qfd = resultado
 
 if st.session_state.resultado_qfd:
@@ -148,12 +132,26 @@ if st.session_state.resultado_qfd:
     num_cols = len(columnas)
     data = resultado["matriz_qfd"]
     data_padded = [fila + [""] * (num_cols - len(fila)) if len(fila) < num_cols else fila[:num_cols] for fila in data]
-    df = pd.DataFrame(data_padded, columns=columnas)
     symbol_map = {"9": "●", 9: "●", "3": "○", 3: "○", "1": "▽", 1: "▽", "0": " ", 0: " ", "": " "}
+
+    puntajes = []
+    for fila in data_padded:
+        puntaje = sum([
+            9 if v in ["9", 9] else
+            3 if v in ["3", 3] else
+            1 if v in ["1", 1] else 0 for v in fila
+        ])
+        puntajes.append(puntaje)
+
+    importancia_ordenada = sorted([(i, p) for i, p in enumerate(puntajes)], key=lambda x: -x[1])
+    ranking_importancia = [0] * len(puntajes)
+    for idx, (original_idx, _) in enumerate(importancia_ordenada):
+        ranking_importancia[original_idx] = idx + 1
+
+    df = pd.DataFrame(data_padded, columns=columnas)
     df = df.applymap(lambda x: symbol_map.get(x, x))
-    df.insert(0, "Importancia del cliente", resultado["importancia_cliente"])
+    df.insert(0, "Importancia del cliente", ranking_importancia)
     df.insert(1, "Necesidades del cliente", resultado["necesidades_cliente"])
-    df = df.sort_values(by="Importancia del cliente", ascending=True, ignore_index=True)
     df.loc["Target"] = ["", "Target"] + resultado["targets"] + [""] * (num_cols - len(resultado["targets"]))
     df.loc["Unidades"] = ["", "Unidades"] + resultado["unidades"] + [""] * (num_cols - len(resultado["unidades"]))
 

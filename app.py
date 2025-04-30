@@ -90,7 +90,7 @@ Necesidades del cliente:
 
 # UI
 st.set_page_config(page_title="Challenge Mentor AI - Matriz QFD", layout="wide")
-st.title("🤖 Challenge Mentor AI - Matriz QFD")
+st.title("🤖 AI Challenge Mentor - Matriz QFD")
 st.markdown("Creadores: Dra. J. Isabel Méndez Garduño & M.Sc. Miguel de J. Ramírez C., CMfgT & M.Sc. David Barrientos ")
 st.subheader("Guía interactiva que te sugiere requerimientos técnicos para tu QFD.")
 st.markdown("Este asistente te ayudará paso a paso a obtener tu listado de requerimientos para la matriz QFD con base en el contexto del socio formador, pregunta esencial, reto específico a resolver y lista de necesidades del cliente. Recibirás una **MATRIZ QFD** que te servirá de base para analizarla y proponer tu propia matriz QFD.")
